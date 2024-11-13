@@ -108,6 +108,8 @@ import VirtualScroller from 'primevue/virtualscroller';
 
 import BlockViewer from '@/components/BlockViewer.vue';
 
+import VueApexCharts from 'vue3-apexcharts';
+
 import '@/assets/styles.scss';
 
 const app = createApp(App);
@@ -117,6 +119,7 @@ app.use(PrimeVue, { ripple: true });
 app.use(ToastService);
 app.use(DialogService);
 app.use(ConfirmationService);
+app.use(VueApexCharts);
 
 app.directive('tooltip', Tooltip);
 app.directive('badge', BadgeDirective);

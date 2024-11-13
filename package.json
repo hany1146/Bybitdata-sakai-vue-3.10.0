@@ -8,6 +8,7 @@
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
     },
     "dependencies": {
+        "apexcharts": "^4.0.0",
         "axios": "^1.7.7",
         "chart.js": "3.3.2",
         "crypto-js": "^4.2.0",
@@ -16,9 +17,11 @@
         "primeflex": "^3.3.1",
         "primeicons": "^6.0.1",
         "primevue": "3.49.1",
+        "scichart": "^3.5.697",
         "technicalindicators": "^3.1.0",
         "vue": "^3.2.41",
-        "vue-router": "^4.1.5"
+        "vue-router": "^4.1.5",
+        "vue3-apexcharts": "^1.7.0"
     },
     "devDependencies": {
         "@rushstack/eslint-patch": "^1.1.4",
