@@ -14,7 +14,7 @@
         <!-- 항상 표시될 데이터 위치 -->
 
         <div class="flex">
-            <div style="width: 80%">
+            <div style="width: 78%">
                 <!-- 차트 컨테이너 -->
                 <div ref="candleChartContainer" style="width: 100%; height: 400px; margin-bottom: 20px"></div>
                 <div ref="volumeChartContainer" style="width: 100%; height: 100px; margin-bottom: 20px"></div>
@@ -23,6 +23,8 @@
                 <div ref="rsiChartContainer" style="width: 100%; height: 100px; margin-bottom: 20px"></div>
                 <div ref="macdChartContainer" style="width: 100%; height: 150px; margin-bottom: 20px"></div>
             </div>
+            <div style="width: 2%"></div>
+
             <div style="width: 20%">
                 <Button @click="runVisual()">적용</Button>
                 <Button @click="deletevalue()">초기화</Button>
@@ -51,10 +53,10 @@
                     <div>ADX2</div>
                     <div style="color: red">ADX <InputNumber v-model="adxOver" :disabled="!conditionADX2" />이상일때</div>
                     <div style="color: red">ADX <InputNumber v-model="adxUnder" :disabled="!conditionADX2" />이하일때</div>
-                    <div style="color: blue">+DI <InputNumber v-model="pdiOver" :disabled="!conditionADX2" />이상일때</div>
-                    <div style="color: blue">+DI <InputNumber v-model="pdiUnder" :disabled="!conditionADX2" />이하일때</div>
-                    <div style="color: orange">-DI <InputNumber v-model="mdiOver" :disabled="!conditionADX2" />이상일때</div>
-                    <div style="color: orange">-DI <InputNumber v-model="mdiUnder" :disabled="!conditionADX2" />이하일때</div>
+                    <div style="color: blue">PDI <InputNumber v-model="pdiOver" :disabled="!conditionADX2" />이상일때</div>
+                    <div style="color: blue">PDI <InputNumber v-model="pdiUnder" :disabled="!conditionADX2" />이하일때</div>
+                    <div style="color: orange">MDI <InputNumber v-model="mdiOver" :disabled="!conditionADX2" />이상일때</div>
+                    <div style="color: orange">MDI <InputNumber v-model="mdiUnder" :disabled="!conditionADX2" />이하일때</div>
                 </div>
                 <div class="card flex-row p-2">
                     <div>ST</div>
@@ -107,26 +109,8 @@ import * as d3 from 'd3';
 
 // 초기화 함수(마커 및 각 수치 초기화)
 function deletevalue() {
-    candlestickSeries.setMarkers([]);
-    markerSeries.value = [];
-    candlestickSeries.setMarkers(markerSeries.value);
-    supertrendLong.value = false;
-    supertrendShort.value = false;
-    rsiOver.value = 0;
-    rsiUnder.value = 0;
-    macdOver.value = 0;
-    macdUnder.value = 0;
-    signalUnder.value = 0;
-    signalOver.value = 0;
-    macdMore.value = false;
-    signalMore.value = false;
-    adxOver.value = 0;
-    pdiOver.value = 0;
-    mdiOver.value = 0;
-    adxUnder.value = 0;
-    pdiUnder.value = 0;
-    mdiUnder.value = 0;
-    adxindicatorsafter.value = [{ name: 'ADX' }, { name: '+DI' }, { name: '-DI' }];
+    // 페이지를 리프레시 함
+    location.reload();
 }
 
 //조건부 펑션함수
@@ -164,79 +148,89 @@ function runVisual() {
             }
         }
 
-        // // 3. MACD1 조건
-        // if (conditionMACD1.value) {
-        //     const macdOverSignalOver = item.macd >= macdOver.value && item.macdSignal >= signalOver.value;
-        //     const macdUnderSignalUnder = item.macd <= macdUnder.value && item.macdSignal <= signalUnder.value;
+        /// 3. MACD1 조건
+        if (conditionMACD1.value) {
+            // MACD 조건 체크 (해당 조건이 활성화된 경우에만 비교)
+            const macdConditionMet = (!macdOver.value || item.macd >= macdOver.value) && (!macdUnder.value || item.macd <= macdUnder.value);
 
-        //     if (macdOverSignalOver || macdUnderSignalUnder) {
-        //         macd1Markers.push(i);
-        //     }
-        // } else {
-        //     macd1Markers.push(i);
-        // }
+            // Signal 조건 체크 (해당 조건이 활성화된 경우에만 비교)
+            const signalConditionMet = (!signalOver.value || item.macdSignal >= signalOver.value) && (!signalUnder.value || item.macdSignal <= signalUnder.value);
 
-        // // 4. MACD2 조건
-        // if (conditionMACD2.value) {
-        //     const macdMoreThanSignal = macdMore.value && item.macd > item.macdSignal;
-        //     const signalMoreThanMacd = signalMore.value && item.macdSignal > item.macd;
+            // 모든 활성화된 조건이 만족되면 마커 추가
+            if (macdConditionMet && signalConditionMet) {
+                macd1Markers.push(i);
+            }
+        } else {
+            // 조건이 활성화되지 않은 경우 모든 항목을 포함
+            macd1Markers.push(i);
+        }
 
-        //     if (macdMoreThanSignal || signalMoreThanMacd) {
-        //         macd2Markers.push(i);
-        //     }
-        // } else {
-        //     macd2Markers.push(i);
-        // }
+        // 4. MACD2 조건
+        if (conditionMACD2.value) {
+            // MACD가 Signal보다 큰 경우
+            const macdMoreThanSignal = macdMore.value ? item.macd > item.macdSignal : true;
 
-        // // 5. ADX1 조건 (순서 체크)
-        // if (conditionADX1.value) {
-        //     const indicatorValues = {
-        //         ADX: item.adx,
-        //         PDI: item.pdi,
-        //         MDI: item.mdi
-        //     };
+            // Signal이 MACD보다 큰 경우
+            const signalMoreThanMacd = signalMore.value ? item.macdSignal > item.macd : true;
 
-        //     const prevIndicatorValues = {
-        //         ADX: prevItem?.adx,
-        //         PDI: prevItem?.pdi,
-        //         MDI: prevItem?.mdi
-        //     };
+            // 모든 활성화된 조건이 만족되면 마커 추가
+            if (macdMoreThanSignal && signalMoreThanMacd) {
+                macd2Markers.push(i);
+            }
+        } else {
+            // 조건이 활성화되지 않은 경우 모든 항목을 포함
+            macd2Markers.push(i);
+        }
 
-        //     let isOrderCorrect = true;
-        //     let wasOrderDifferentBefore = false;
+        // 5. ADX1 조건 (순서 체크)
+        if (conditionADX1.value) {
+            let isOrderCorrect = true;
+            let wasOrderDifferentBefore = false;
 
-        //     for (let j = 0; j < adxindicatorsafter.value.length - 1; j++) {
-        //         const current = adxindicatorsafter.value[j].name;
-        //         const next = adxindicatorsafter.value[j + 1].name;
+            // 순서에 따라 `adxindicatorsafter` 배열의 지표 비교
+            for (let j = 0; j < adxindicatorsafter.value.length - 1; j++) {
+                const currentIndicator = adxindicatorsafter.value[j].name.toLowerCase();
+                const nextIndicator = adxindicatorsafter.value[j + 1].name.toLowerCase();
 
-        //         if (indicatorValues[current] <= indicatorValues[next]) {
-        //             isOrderCorrect = false;
-        //             break;
-        //         }
+                // 현재 지표 순서대로 값 비교
+                if (item[currentIndicator] <= item[nextIndicator]) {
+                    isOrderCorrect = false;
+                    break;
+                }
 
-        //         if (prevIndicatorValues[current] <= prevIndicatorValues[next]) {
-        //             wasOrderDifferentBefore = true;
-        //         }
-        //     }
+                // 이전 값과의 순서가 다른지 확인 (현재 값이 순서대로지만, 이전 값은 순서가 다른 경우를 찾음)
+                if (prevItem && prevItem[currentIndicator] <= prevItem[nextIndicator]) {
+                    wasOrderDifferentBefore = true;
+                }
+            }
 
-        //     if (isOrderCorrect && wasOrderDifferentBefore) {
-        //         adx1Markers.push(i);
-        //     }
-        // } else {
-        //     adx1Markers.push(i);
-        // }
+            // 현재 순서가 올바르고, 이전에는 순서가 달랐을 경우에만 마커 추가
+            if (isOrderCorrect && wasOrderDifferentBefore) {
+                adx1Markers.push(i);
+            }
+        } else {
+            // 조건이 활성화되지 않은 경우 모든 항목을 포함하지 않음 (기본 상태로 유지)
+        }
 
-        // // 6. ADX2 조건
-        // if (conditionADX2.value) {
-        //     const adxOverCondition = item.adx >= adxOver.value && item.pdi >= pdiOver.value && item.mdi >= mdiOver.value;
-        //     const adxUnderCondition = item.adx <= adxUnder.value && item.pdi <= pdiUnder.value && item.mdi <= mdiUnder.value;
+        // 6. ADX2 조건
+        if (conditionADX2.value) {
+            // ADX 조건 체크 (해당 조건이 활성화된 경우에만 비교)
+            const adxConditionMet = (!adxOver.value || item.adx >= adxOver.value) && (!adxUnder.value || item.adx <= adxUnder.value);
 
-        //     if (adxOverCondition || adxUnderCondition) {
-        //         adx2Markers.push(i);
-        //     }
-        // } else {
-        //     adx2Markers.push(i);
-        // }
+            // PDI 조건 체크 (해당 조건이 활성화된 경우에만 비교)
+            const pdiConditionMet = (!pdiOver.value || item.pdi >= pdiOver.value) && (!pdiUnder.value || item.pdi <= pdiUnder.value);
+
+            // MDI 조건 체크 (해당 조건이 활성화된 경우에만 비교)
+            const mdiConditionMet = (!mdiOver.value || item.mdi >= mdiOver.value) && (!mdiUnder.value || item.mdi <= mdiUnder.value);
+
+            // 모든 활성화된 조건이 만족되면 마커 추가
+            if (adxConditionMet && pdiConditionMet && mdiConditionMet) {
+                adx2Markers.push(i);
+            }
+        } else {
+            // 조건이 활성화되지 않은 경우 모든 항목을 포함
+            adx2Markers.push(i);
+        }
     });
 
     const activeMarkers = [stMarkers, rsiMarkers, macd1Markers, macd2Markers, adx1Markers, adx2Markers];
@@ -256,6 +250,8 @@ function runVisual() {
         shape: 'arrowDown',
         text: '모든 조건 만족'
     }));
+    console.log(adx1Markers);
+    console.log(adxindicatorsafter.value);
     candlestickSeries.setMarkers(markers);
 }
 
@@ -283,15 +279,15 @@ const mdiOver = ref(0);
 const adxUnder = ref(0);
 const pdiUnder = ref(0);
 const mdiUnder = ref(0);
-const adxindicatorsafter = ref([{ name: 'ADX' }, { name: '+DI' }, { name: '-DI' }]);
+const adxindicatorsafter = ref([{ name: 'adx' }, { name: 'pdi' }, { name: 'mdi' }]);
 
 function getColor(name) {
     switch (name) {
-        case 'ADX':
+        case 'adx':
             return 'red'; // 예: 빨간색
-        case '+DI':
+        case 'pdi':
             return 'blue'; // 예: 파란색
-        case '-DI':
+        case 'mdi':
             return 'orange'; // 예: 오랜지색
         default:
             return '#000000'; // 기본 검은색
@@ -546,11 +542,11 @@ const initializeCharts = () => {
         lineWidth: 1
     });
     const pdiSeries = adxChart.addLineSeries({
-        color: 'blue', // 파란색 +DI
+        color: 'blue', // 파란색 PDI
         lineWidth: 1
     });
     const mdiSeries = adxChart.addLineSeries({
-        color: 'orange', // 오랜지색 -DI
+        color: 'orange', // 오랜지색 MDI
         lineWidth: 1
     });
 
