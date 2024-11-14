@@ -18,75 +18,82 @@
                 <!-- 차트 컨테이너 -->
                 <div ref="candleChartContainer" style="width: 100%; height: 400px; margin-bottom: 20px"></div>
                 <div ref="volumeChartContainer" style="width: 100%; height: 100px; margin-bottom: 20px"></div>
+                <div ref="adxChartContainer" style="width: 100%; height: 200px; margin-bottom: 20px"></div>
                 <div ref="supertrendChartContainer" style="width: 100%; height: 100px; margin-bottom: 20px"></div>
                 <div ref="rsiChartContainer" style="width: 100%; height: 100px; margin-bottom: 20px"></div>
                 <div ref="macdChartContainer" style="width: 100%; height: 150px; margin-bottom: 20px"></div>
-                <div ref="adxChartContainer" style="width: 100%; height: 200px"></div>
             </div>
             <div style="width: 20%">
-                <InputNumber v-model="inputValue" @update:modelValue="findData" placeholder="ADX 값 입력" />
-                {{ inputValue }}
-                <div>조건</div>
-                <div class="card flex-row">
+                <Button @click="runVisual()">적용</Button>
+                <Button @click="deletevalue()">초기화</Button>
+                <div class="card flex gap-3 p-2">
+                    <div>ADX1 <Checkbox v-model="conditionADX1" :binary="true" /></div>
+                    <div>ADX2 <Checkbox v-model="conditionADX2" :binary="true" /></div>
+                    <div>MACD1 <Checkbox v-model="conditionMACD1" :binary="true" /></div>
+                    <div>MACD2 <Checkbox v-model="conditionMACD2" :binary="true" /></div>
+                    <div>ST <Checkbox v-model="conditionST" :binary="true" /></div>
+                    <div>RSI <Checkbox v-model="conditionRSI" :binary="true" /></div>
+                </div>
+
+                <div class="card flex p-2">
+                    <div>ADX1</div>
+                    <OrderList v-model="adxindicatorsafter" :dragdrop="true" header="Indicator Order" v-show="conditionADX1">
+                        <template #header>바뀐자료</template>
+                        <template #item="slotProps">
+                            <div class="p-d-flex p-ai-center p-jc-between" style="width: 100%">
+                                <div :style="{ color: getColor(slotProps.item.name) }">{{ slotProps.index + 1 }}. {{ slotProps.item.name }}</div>
+                            </div>
+                        </template>
+                    </OrderList>
+                </div>
+
+                <div class="card flex-row p-2">
+                    <div>ADX2</div>
+                    <div style="color: red">ADX <InputNumber v-model="adxOver" :disabled="!conditionADX2" />이상일때</div>
+                    <div style="color: red">ADX <InputNumber v-model="adxUnder" :disabled="!conditionADX2" />이하일때</div>
+                    <div style="color: blue">+DI <InputNumber v-model="pdiOver" :disabled="!conditionADX2" />이상일때</div>
+                    <div style="color: blue">+DI <InputNumber v-model="pdiUnder" :disabled="!conditionADX2" />이하일때</div>
+                    <div style="color: orange">-DI <InputNumber v-model="mdiOver" :disabled="!conditionADX2" />이상일때</div>
+                    <div style="color: orange">-DI <InputNumber v-model="mdiUnder" :disabled="!conditionADX2" />이하일때</div>
+                </div>
+                <div class="card flex-row p-2">
+                    <div>ST</div>
                     <div class="flex align-content-center mb-2">
                         <div class="mr-2">SuperTrend Long</div>
-                        <Checkbox v-model="supertrendLong" :binary="true"></Checkbox>
+                        <Checkbox v-model="supertrendLong" :binary="true" :disabled="!conditionST"></Checkbox>
                     </div>
 
                     <div class="flex align-content-center">
                         <div class="mr-2">SuperTrend Short</div>
-                        <Checkbox v-model="supertrendShort" :binary="true"></Checkbox>
+                        <Checkbox v-model="supertrendShort" :binary="true" :disabled="!conditionST"></Checkbox>
                     </div>
                 </div>
-                <div class="card flex-row">
+                <div class="card flex-row p-2">
                     <div>RSI</div>
-                    <div><InputNumber v-model="rsiOver" /> 이상일때</div>
-                    <div><InputNumber v-model="rsiUnder" /> 이하일때</div>
+                    <div><InputNumber v-model="rsiOver" :disabled="!conditionRSI" /> 이상일때</div>
+                    <div><InputNumber v-model="rsiUnder" :disabled="!conditionRSI" /> 이하일때</div>
                 </div>
-                <div class="card flex-row">
-                    <div>MACD</div>
-                    <div style="color: blue">MACD<InputNumber v-model="macdOver"></InputNumber>이상일때</div>
-                    <div style="color: blue">MACD<InputNumber v-model="macdUnder"></InputNumber>이하일때</div>
+                <div class="card flex-row p-2">
+                    <div>MACD1</div>
+                    <div style="color: blue">MACD<InputNumber v-model="macdOver" :disabled="!conditionMACD1" />이상일때</div>
+                    <div style="color: blue">MACD<InputNumber v-model="macdUnder" :disabled="!conditionMACD1" />이하일때</div>
 
-                    <div style="color: red">Signal<InputNumber v-model="signalUnder"></InputNumber>이하일때</div>
-                    <div style="color: red">Signal<InputNumber v-model="signalOver"></InputNumber>이상일때</div>
+                    <div style="color: red">Signal<InputNumber v-model="signalUnder" :disabled="!conditionMACD1" />이하일때</div>
+                    <div style="color: red">Signal<InputNumber v-model="signalOver" :disabled="!conditionMACD1" />이상일때</div>
+                </div>
+                <div class="card flex-row p-2">
+                    <div>MACD2</div>
+
                     <div class="mt-2">
                         <div class="flex align-content-center mb-2">
                             <div style="color: blue" class="mr-2">MACD가Signal보다 클때</div>
-                            <div><Checkbox v-model="macdMore" :binary="true"></Checkbox></div>
+                            <div><Checkbox v-model="macdMore" :binary="true" :disabled="!conditionMACD2"></Checkbox></div>
                         </div>
                         <div class="flex align-content-center mb-2">
                             <div style="color: red" class="mr-2">Signal가MACD보다 클때</div>
-                            <div><Checkbox v-model="signalMore" :binary="true"></Checkbox></div>
+                            <div><Checkbox v-model="signalMore" :binary="true" :disabled="!conditionMACD2"></Checkbox></div>
                         </div>
                     </div>
-                </div>
-                <div class="card flex">
-                    <OrderList v-model="adxindicatorsbefore" :dragdrop="true" header="Indicator Order">
-                        <template #header>직전자료</template>
-                        <template #item="slotProps">
-                            <div class="p-d-flex p-ai-center p-jc-between" style="width: 100%">
-                                <div>{{ slotProps.index + 1 }}. {{ slotProps.item.name }}</div>
-                                <!-- 순번을 표시 -->
-                            </div>
-                        </template>
-                    </OrderList>
-
-                    <OrderList v-model="adxindicatorsafter" :dragdrop="true" header="Indicator Order">
-                        <template #header>바뀐자료</template>
-                        <template #item="slotProps">
-                            <div class="p-d-flex p-ai-center p-jc-between" style="width: 100%">
-                                <div>{{ slotProps.index + 1 }}. {{ slotProps.item.name }}</div>
-                            </div>
-                        </template>
-                    </OrderList>
-                </div>
-
-                <div class="card flex-row">
-                    <div>ADX</div>
-                    <div style="color: red">ADX <InputNumber /></div>
-                    <div style="color: blue">+DI<InputNumber></InputNumber>이상일때</div>
-                    <div style="color: orange">-DI<InputNumber></InputNumber>이상일때</div>
                 </div>
             </div>
         </div>
@@ -98,22 +105,198 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { createChart } from 'lightweight-charts';
 import * as d3 from 'd3';
 
+// 초기화 함수(마커 및 각 수치 초기화)
+function deletevalue() {
+    candlestickSeries.setMarkers([]);
+    markerSeries.value = [];
+    candlestickSeries.setMarkers(markerSeries.value);
+    supertrendLong.value = false;
+    supertrendShort.value = false;
+    rsiOver.value = 0;
+    rsiUnder.value = 0;
+    macdOver.value = 0;
+    macdUnder.value = 0;
+    signalUnder.value = 0;
+    signalOver.value = 0;
+    macdMore.value = false;
+    signalMore.value = false;
+    adxOver.value = 0;
+    pdiOver.value = 0;
+    mdiOver.value = 0;
+    adxUnder.value = 0;
+    pdiUnder.value = 0;
+    mdiUnder.value = 0;
+    adxindicatorsafter.value = [{ name: 'ADX' }, { name: '+DI' }, { name: '-DI' }];
+}
+
+//조건부 펑션함수
+function runVisual() {
+    // 조건을 만족하는 인덱스를 저장할 배열들
+    const stMarkers = [];
+    const rsiMarkers = [];
+    const macd1Markers = [];
+    const macd2Markers = [];
+    const adx1Markers = [];
+    const adx2Markers = [];
+
+    data.value.forEach((item, i) => {
+        const prevItem = data.value[i - 1];
+
+        // 1. SuperTrend 조건
+        if (conditionST.value) {
+            // Long 조건: 현재 항목에 lowerband가 있고, 이전 항목에 lowerband가 없으면 추가
+            if (supertrendLong.value && item.lowerBand && (!prevItem || !prevItem.lowerBand)) {
+                stMarkers.push(i);
+            }
+            if (supertrendShort.value && item.upperBand && (!prevItem || !prevItem.upperBand)) {
+                stMarkers.push(i);
+            }
+        }
+
+        // 2. RSI 조건
+        if (conditionRSI.value) {
+            const meetsOverCondition = rsiOver.value && item.rsi >= rsiOver.value;
+            const meetsUnderCondition = rsiUnder.value && item.rsi <= rsiUnder.value;
+
+            // 두 조건 중 하나라도 만족하는 경우만 추가
+            if (meetsOverCondition || meetsUnderCondition) {
+                rsiMarkers.push(i);
+            }
+        }
+
+        // // 3. MACD1 조건
+        // if (conditionMACD1.value) {
+        //     const macdOverSignalOver = item.macd >= macdOver.value && item.macdSignal >= signalOver.value;
+        //     const macdUnderSignalUnder = item.macd <= macdUnder.value && item.macdSignal <= signalUnder.value;
+
+        //     if (macdOverSignalOver || macdUnderSignalUnder) {
+        //         macd1Markers.push(i);
+        //     }
+        // } else {
+        //     macd1Markers.push(i);
+        // }
+
+        // // 4. MACD2 조건
+        // if (conditionMACD2.value) {
+        //     const macdMoreThanSignal = macdMore.value && item.macd > item.macdSignal;
+        //     const signalMoreThanMacd = signalMore.value && item.macdSignal > item.macd;
+
+        //     if (macdMoreThanSignal || signalMoreThanMacd) {
+        //         macd2Markers.push(i);
+        //     }
+        // } else {
+        //     macd2Markers.push(i);
+        // }
+
+        // // 5. ADX1 조건 (순서 체크)
+        // if (conditionADX1.value) {
+        //     const indicatorValues = {
+        //         ADX: item.adx,
+        //         PDI: item.pdi,
+        //         MDI: item.mdi
+        //     };
+
+        //     const prevIndicatorValues = {
+        //         ADX: prevItem?.adx,
+        //         PDI: prevItem?.pdi,
+        //         MDI: prevItem?.mdi
+        //     };
+
+        //     let isOrderCorrect = true;
+        //     let wasOrderDifferentBefore = false;
+
+        //     for (let j = 0; j < adxindicatorsafter.value.length - 1; j++) {
+        //         const current = adxindicatorsafter.value[j].name;
+        //         const next = adxindicatorsafter.value[j + 1].name;
+
+        //         if (indicatorValues[current] <= indicatorValues[next]) {
+        //             isOrderCorrect = false;
+        //             break;
+        //         }
+
+        //         if (prevIndicatorValues[current] <= prevIndicatorValues[next]) {
+        //             wasOrderDifferentBefore = true;
+        //         }
+        //     }
+
+        //     if (isOrderCorrect && wasOrderDifferentBefore) {
+        //         adx1Markers.push(i);
+        //     }
+        // } else {
+        //     adx1Markers.push(i);
+        // }
+
+        // // 6. ADX2 조건
+        // if (conditionADX2.value) {
+        //     const adxOverCondition = item.adx >= adxOver.value && item.pdi >= pdiOver.value && item.mdi >= mdiOver.value;
+        //     const adxUnderCondition = item.adx <= adxUnder.value && item.pdi <= pdiUnder.value && item.mdi <= mdiUnder.value;
+
+        //     if (adxOverCondition || adxUnderCondition) {
+        //         adx2Markers.push(i);
+        //     }
+        // } else {
+        //     adx2Markers.push(i);
+        // }
+    });
+
+    const activeMarkers = [stMarkers, rsiMarkers, macd1Markers, macd2Markers, adx1Markers, adx2Markers];
+    const activeConditions = [conditionST.value, conditionRSI.value, conditionMACD1.value, conditionMACD2.value, conditionADX1.value, conditionADX2.value];
+
+    // 활성화된 조건에 해당하는 마커 배열만 사용하여 교집합 구하기
+    // 활성화된 조건에 해당하는 마커 배열만 사용하여 교집합 구하기
+    const filteredMarkers = activeMarkers
+        .filter((_, idx) => activeConditions[idx]) // 활성화된 조건에 해당하는 마커 배열만 남김
+        .reduce((acc, markers) => (acc.length === 0 ? markers : acc.filter((index) => markers.includes(index))));
+
+    // 최종 교집합 인덱스를 기반으로 마커 추가
+    const markers = filteredMarkers.map((i) => ({
+        time: data.value[i].time,
+        position: 'aboveBar',
+        color: 'blue',
+        shape: 'arrowDown',
+        text: '모든 조건 만족'
+    }));
+    candlestickSeries.setMarkers(markers);
+}
+
 // 조건관련 변수
-const supertrendLong = ref(false);
-const supertrendShort = ref(false);
-const rsiOver = ref(0);
-const rsiUnder = ref(0);
-const macdOver = ref(0);
-const macdUnder = ref(0);
-const signalUnder = ref(0);
-const signalOver = ref(0);
-const macdMore = ref(false);
-const signalMore = ref(false);
-const adxvalue = ref(0);
-// Indicator 리스트
-const adxindicatorsbefore = ref([{ name: 'ADX' }, { name: '+DI' }, { name: '-DI' }]);
+const conditionST = ref(false); // supertrend 조건을 넣을지 안 넣을지 (supertrendLong, supertrendShort)
+const conditionRSI = ref(false); // rsi조건을 넣을지 안 넣을지 (rsiOver, rsiUnder)
+const conditionMACD1 = ref(false); // macd1조건을 넣을지 안 넣을지 (macdOver, macdUnder, signalOver, signalUnder)
+const conditionMACD2 = ref(false); // macd2조건을 넣을지 안 넣을지 (macdMore, signalMore)
+const conditionADX1 = ref(false); // adx1 조건을 넣을지 안 넣을지 (adxindicatorsafter)
+const conditionADX2 = ref(false); // adx2 조건을 넣을지 안 넣을지 (adxOver, adxUnder, pdiOver, pdiUnder, mdiOver, mdiUnder)
+
+const supertrendLong = ref(false); // supertrend가 long일때
+const supertrendShort = ref(false); // supertrend가 short일때
+const rsiOver = ref(0); // rsi가 이 값 이상일 때
+const rsiUnder = ref(0); // rsi가 이 값 이하일 때
+const macdOver = ref(0); // macd가 이 값 이상일 때
+const macdUnder = ref(0); // macd가 이 값 이하일 때
+const signalUnder = ref(0); // signal이 이 값 이하일 때
+const signalOver = ref(0); // signal이 이 값 이상일 때
+const macdMore = ref(false); // macd가 signal보다 클때
+const signalMore = ref(false); // signal이 macd보다 클때
+const adxOver = ref(0); //
+const pdiOver = ref(0);
+const mdiOver = ref(0);
+const adxUnder = ref(0);
+const pdiUnder = ref(0);
+const mdiUnder = ref(0);
 const adxindicatorsafter = ref([{ name: 'ADX' }, { name: '+DI' }, { name: '-DI' }]);
 
+function getColor(name) {
+    switch (name) {
+        case 'ADX':
+            return 'red'; // 예: 빨간색
+        case '+DI':
+            return 'blue'; // 예: 파란색
+        case '-DI':
+            return 'orange'; // 예: 오랜지색
+        default:
+            return '#000000'; // 기본 검은색
+    }
+}
 // 데이터 관련 변수
 const inputValue = ref('');
 const data = ref([]);
@@ -205,7 +388,7 @@ const loadCSV = async () => {
             macdSignal: parseFloat(row.macd_signal) || NaN,
             macdHist: parseFloat(row.macd_hist) || NaN
         }));
-
+        // console.log(data.value);
         // 볼륨 데이터 설정
         volumeData.value = data.value.map((item) => ({
             time: item.time,
@@ -511,6 +694,8 @@ onMounted(() => {
 </script>
 
 <style>
-/* 필요한 스타일 추가 */
+.p-inputnumber input {
+    width: 70px;
+}
 </style>
 
