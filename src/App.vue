@@ -47,6 +47,10 @@
                             </div>
                         </template>
                     </OrderList>
+                    <div class="ml-4" v-show="conditionADX1">
+                        <div>전체자료</div>
+                        <Checkbox v-model="adxindicatorsAll" :binary="true" />
+                    </div>
                 </div>
 
                 <div class="card flex-row p-2">
@@ -58,16 +62,21 @@
                     <div style="color: orange">MDI <InputNumber v-model="mdiOver" :disabled="!conditionADX2" />이상일때</div>
                     <div style="color: orange">MDI <InputNumber v-model="mdiUnder" :disabled="!conditionADX2" />이하일때</div>
                 </div>
-                <div class="card flex-row p-2">
-                    <div>ST</div>
-                    <div class="flex align-content-center mb-2">
-                        <div class="mr-2">SuperTrend Long</div>
-                        <Checkbox v-model="supertrendLong" :binary="true" :disabled="!conditionST"></Checkbox>
+                <div class="card flex p-2">
+                    <div>
+                        <div>ST</div>
+                        <div class="flex align-content-center mb-2">
+                            <div class="mr-2">SuperTrend Long</div>
+                            <Checkbox v-model="supertrendLong" :binary="true" :disabled="!conditionST"></Checkbox>
+                        </div>
+                        <div class="flex align-content-center">
+                            <div class="mr-2">SuperTrend Short</div>
+                            <Checkbox v-model="supertrendShort" :binary="true" :disabled="!conditionST"></Checkbox>
+                        </div>
                     </div>
-
-                    <div class="flex align-content-center">
-                        <div class="mr-2">SuperTrend Short</div>
-                        <Checkbox v-model="supertrendShort" :binary="true" :disabled="!conditionST"></Checkbox>
+                    <div class="ml-4">
+                        <div>전체자료</div>
+                        <Checkbox v-model="supertrendAll" :binary="true" :disabled="!conditionST" />
                     </div>
                 </div>
                 <div class="card flex-row p-2">
@@ -79,22 +88,26 @@
                     <div>MACD1</div>
                     <div style="color: blue">MACD<InputNumber v-model="macdOver" :disabled="!conditionMACD1" />이상일때</div>
                     <div style="color: blue">MACD<InputNumber v-model="macdUnder" :disabled="!conditionMACD1" />이하일때</div>
-
-                    <div style="color: red">Signal<InputNumber v-model="signalUnder" :disabled="!conditionMACD1" />이하일때</div>
                     <div style="color: red">Signal<InputNumber v-model="signalOver" :disabled="!conditionMACD1" />이상일때</div>
+                    <div style="color: red">Signal<InputNumber v-model="signalUnder" :disabled="!conditionMACD1" />이하일때</div>
                 </div>
-                <div class="card flex-row p-2">
-                    <div>MACD2</div>
-
-                    <div class="mt-2">
-                        <div class="flex align-content-center mb-2">
-                            <div style="color: blue" class="mr-2">MACD가Signal보다 클때</div>
-                            <div><Checkbox v-model="macdMore" :binary="true" :disabled="!conditionMACD2"></Checkbox></div>
+                <div class="card flex p-2">
+                    <div>
+                        <div>MACD2</div>
+                        <div class="mt-2">
+                            <div class="flex align-content-center mb-2">
+                                <div style="color: blue" class="mr-2">MACD가Signal보다 클때</div>
+                                <div><Checkbox v-model="macdMore" :binary="true" :disabled="!conditionMACD2"></Checkbox></div>
+                            </div>
+                            <div class="flex align-content-center mb-2">
+                                <div style="color: red" class="mr-2">Signal가MACD보다 클때</div>
+                                <div><Checkbox v-model="signalMore" :binary="true" :disabled="!conditionMACD2"></Checkbox></div>
+                            </div>
                         </div>
-                        <div class="flex align-content-center mb-2">
-                            <div style="color: red" class="mr-2">Signal가MACD보다 클때</div>
-                            <div><Checkbox v-model="signalMore" :binary="true" :disabled="!conditionMACD2"></Checkbox></div>
-                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <div>전체자료</div>
+                        <Checkbox v-model="macdAll" :binary="true" :disabled="!conditionMACD2" />
                     </div>
                 </div>
             </div>
@@ -128,11 +141,12 @@ function runVisual() {
 
         // 1. SuperTrend 조건
         if (conditionST.value) {
-            // Long 조건: 현재 항목에 lowerband가 있고, 이전 항목에 lowerband가 없으면 추가
-            if (supertrendLong.value && item.lowerBand && (!prevItem || !prevItem.lowerBand)) {
+            // Long 조건: supertrendAll이 true일 경우 이전 항목 비교 없이 모든 lowerBand 항목 추가
+            if (supertrendLong.value && item.lowerBand && (supertrendAll.value || !prevItem || !prevItem.lowerBand)) {
                 stMarkers.push(i);
             }
-            if (supertrendShort.value && item.upperBand && (!prevItem || !prevItem.upperBand)) {
+            // Short 조건: supertrendAll이 true일 경우 이전 항목 비교 없이 모든 upperBand 항목 추가
+            if (supertrendShort.value && item.upperBand && (supertrendAll.value || !prevItem || !prevItem.upperBand)) {
                 stMarkers.push(i);
             }
         }
@@ -166,15 +180,27 @@ function runVisual() {
         }
 
         // 4. MACD2 조건
+        // 4. MACD2 조건
         if (conditionMACD2.value) {
-            // MACD가 Signal보다 큰 경우
-            const macdMoreThanSignal = macdMore.value ? item.macd > item.macdSignal : true;
+            let addMarker = false;
 
-            // Signal이 MACD보다 큰 경우
-            const signalMoreThanMacd = signalMore.value ? item.macdSignal > item.macd : true;
+            if (macdAll.value) {
+                // macdAll이 true일 때는 현재 상태가 macdMore 또는 signalMore 조건을 만족하는지 확인
+                if ((macdMore.value && item.macd > item.macdSignal) || (signalMore.value && item.macdSignal > item.macd)) {
+                    addMarker = true;
+                }
+            } else {
+                // macdAll이 false일 때는 이전 항목과 비교하여 상태가 전환된 시점만 표시
+                if (macdMore.value && item.macd > item.macdSignal && (!prevItem || prevItem.macd <= prevItem.macdSignal)) {
+                    addMarker = true;
+                }
+                if (signalMore.value && item.macdSignal > item.macd && (!prevItem || prevItem.macdSignal <= prevItem.macd)) {
+                    addMarker = true;
+                }
+            }
 
-            // 모든 활성화된 조건이 만족되면 마커 추가
-            if (macdMoreThanSignal && signalMoreThanMacd) {
+            // 조건에 따라 마커를 추가
+            if (addMarker) {
                 macd2Markers.push(i);
             }
         } else {
@@ -199,13 +225,13 @@ function runVisual() {
                 }
 
                 // 이전 값과의 순서가 다른지 확인 (현재 값이 순서대로지만, 이전 값은 순서가 다른 경우를 찾음)
-                if (prevItem && prevItem[currentIndicator] <= prevItem[nextIndicator]) {
+                if (!adxindicatorsAll.value && prevItem && prevItem[currentIndicator] <= prevItem[nextIndicator]) {
                     wasOrderDifferentBefore = true;
                 }
             }
 
             // 현재 순서가 올바르고, 이전에는 순서가 달랐을 경우에만 마커 추가
-            if (isOrderCorrect && wasOrderDifferentBefore) {
+            if (isOrderCorrect && (wasOrderDifferentBefore || adxindicatorsAll.value)) {
                 adx1Markers.push(i);
             }
         } else {
@@ -265,6 +291,8 @@ const conditionADX2 = ref(false); // adx2 조건을 넣을지 안 넣을지 (adx
 
 const supertrendLong = ref(false); // supertrend가 long일때
 const supertrendShort = ref(false); // supertrend가 short일때
+const supertrendAll = ref(false); // supertrend가 long일때
+
 const rsiOver = ref(0); // rsi가 이 값 이상일 때
 const rsiUnder = ref(0); // rsi가 이 값 이하일 때
 const macdOver = ref(0); // macd가 이 값 이상일 때
@@ -273,6 +301,8 @@ const signalUnder = ref(0); // signal이 이 값 이하일 때
 const signalOver = ref(0); // signal이 이 값 이상일 때
 const macdMore = ref(false); // macd가 signal보다 클때
 const signalMore = ref(false); // signal이 macd보다 클때
+const macdAll = ref(false); // supertrend가 long일때
+
 const adxOver = ref(0); //
 const pdiOver = ref(0);
 const mdiOver = ref(0);
@@ -280,6 +310,7 @@ const adxUnder = ref(0);
 const pdiUnder = ref(0);
 const mdiUnder = ref(0);
 const adxindicatorsafter = ref([{ name: 'adx' }, { name: 'pdi' }, { name: 'mdi' }]);
+const adxindicatorsAll = ref(false);
 
 function getColor(name) {
     switch (name) {
