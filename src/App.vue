@@ -382,38 +382,45 @@ function runVisual() {
 
         // 1-1 wavetrend 조건2 wt1과 wt2의 숫자 비교
         if (conditionWT2.value) {
-            let wt1Condition = true; // 기본값: 조건이 없으면 항상 true
-            let wt2Condition = true; // 기본값: 조건이 없으면 항상 true
-
-            // wt1 조건 확인
-            if (wt1Over.value !== null && wt1Over.value !== undefined) {
-                wt1Condition = item.wt1 >= wt1Over.value;
+            // wt1 조건 평가
+            let wt1Condition = true; // 기본값
+            let wt2Condition = true; // 기본값
+            if (wt1Over?.value !== null && wt1Over?.value !== undefined) {
+                wt1Condition = item.wt1 >= wt1Over.value; // wt1이 wt1Over 이상인지 확인
             }
-            if (wt1Under.value !== null && wt1Under.value !== undefined) {
-                wt1Condition = wt1Condition && item.wt1 <= wt1Under.value;
+            if (wt1Under?.value !== null && wt1Under?.value !== undefined) {
+                wt1Condition = wt1Condition && item.wt1 <= wt1Under.value; // wt1이 wt1Under 이하인지 확인
             }
-
-            // wt2 조건 확인
-            if (wt2Over.value !== null && wt2Over.value !== undefined) {
-                wt2Condition = item.wt2 >= wt2Over.value;
+            if (wt2Over?.value !== null && wt2Over?.value !== undefined) {
+                wt2Condition = item.wt2 >= wt2Over.value; // wt2가 wt2Over 이상인지 확인
             }
-            if (wt2Under.value !== null && wt2Under.value !== undefined) {
-                wt2Condition = wt2Condition && item.wt2 <= wt2Under.value;
+            if (wt2Under?.value !== null && wt2Under?.value !== undefined) {
+                wt2Condition = wt2Condition && item.wt2 <= wt2Under.value; // wt2가 wt2Under 이하인지 확인
             }
 
-            // 최종 조건: 두 조건 모두 만족해야 함
+            // 나머지 조건에 대해서 나열해
+
             if (wt1Condition && wt2Condition) {
-                wt2Makers.push(i); // 조건을 만족하는 인덱스를 추가
+                wt2Makers.push(i);
             }
         }
 
         // 2. RSI 조건
         if (conditionRSI.value) {
-            const meetsOverCondition = rsiOver.value && item.rsi >= rsiOver.value;
-            const meetsUnderCondition = rsiUnder.value && item.rsi <= rsiUnder.value;
+            let rsiCondition = true;
 
-            // 두 조건 중 하나라도 만족하는 경우만 추가
-            if (meetsOverCondition || meetsUnderCondition) {
+            // rsiOver 조건 확인
+            if (rsiOver.value !== null && rsiOver.value !== undefined) {
+                rsiCondition = item.rsi >= rsiOver.value;
+            }
+
+            // rsiUnder 조건 확인
+            if (rsiUnder.value !== null && rsiUnder.value !== undefined) {
+                rsiCondition = rsiCondition && item.rsi <= rsiUnder.value;
+            }
+
+            // 조건을 만족하는 경우 인덱스 추가
+            if (rsiCondition) {
                 rsiMarkers.push(i);
             }
         }
@@ -543,6 +550,7 @@ function runVisual() {
             return acc.filter((index) => markers.includes(index));
         });
     };
+    //
 
     // 최종 마커 계산
     const filteredMarkers = calculateFinalMarkers(activeMarkers);
@@ -628,28 +636,28 @@ const wavetrendLong = ref(false); // wavetrend가 long일때
 const wavetrendShort = ref(false); // wavetrend가 short일때
 const wavetrendAll = ref(false); // wavetrend가 long일때
 
-const rsiOver = ref(0); // rsi가 이 값 이상일 때
-const rsiUnder = ref(0); // rsi가 이 값 이하일 때
-const macdOver = ref(0); // macd가 이 값 이상일 때
-const macdUnder = ref(0); // macd가 이 값 이하일 때
-const signalUnder = ref(0); // signal이 이 값 이하일 때
-const signalOver = ref(0); // signal이 이 값 이상일 때
+const rsiOver = ref(); // rsi가 이 값 이상일 때
+const rsiUnder = ref(); // rsi가 이 값 이하일 때
+const macdOver = ref(); // macd가 이 값 이상일 때
+const macdUnder = ref(); // macd가 이 값 이하일 때
+const signalUnder = ref(); // signal이 이 값 이하일 때
+const signalOver = ref(); // signal이 이 값 이상일 때
 const macdMore = ref(false); // macd가 signal보다 클때
 const signalMore = ref(false); // signal이 macd보다 클때
 const macdAll = ref(false); //
 
-const adxOver = ref(0); //
-const pdiOver = ref(0);
-const mdiOver = ref(0);
-const adxUnder = ref(0);
-const pdiUnder = ref(0);
-const mdiUnder = ref(0);
+const adxOver = ref(); //
+const pdiOver = ref();
+const mdiOver = ref();
+const adxUnder = ref();
+const pdiUnder = ref();
+const mdiUnder = ref();
 const adxindicatorsafter = ref([{ name: 'adx' }, { name: 'pdi' }, { name: 'mdi' }]);
 const adxindicatorsAll = ref(false);
-const wt1Over = ref(0);
-const wt2Over = ref(0);
-const wt1Under = ref(0);
-const wt2Under = ref(0);
+const wt1Over = ref();
+const wt2Over = ref();
+const wt1Under = ref();
+const wt2Under = ref();
 
 function getColor(name) {
     switch (name) {
