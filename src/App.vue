@@ -28,15 +28,19 @@
                         <Button @click="runVisual()">적용</Button>
                         <Button @click="deletevalue()">초기화</Button>
                     </div>
-                    <div class="card flex gap-3 p-2">
-                        <div>ADX1 <Checkbox v-model="conditionADX1" :binary="true" /></div>
-                        <div>ADX2 <Checkbox v-model="conditionADX2" :binary="true" /></div>
-                        <div>MACD1 <Checkbox v-model="conditionMACD1" :binary="true" /></div>
-                        <div>MACD2 <Checkbox v-model="conditionMACD2" :binary="true" /></div>
-                        <div>ST <Checkbox v-model="conditionST" :binary="true" /></div>
-                        <div>RSI <Checkbox v-model="conditionRSI" :binary="true" /></div>
-                        <div>WT1 <Checkbox v-model="conditionWT1" :binary="true" /></div>
-                        <div>WT2 <Checkbox v-model="conditionWT2" :binary="true" /></div>
+                    <div class="card flex-row gap-3 p-2">
+                        <div class="flex">
+                            <div>ADX1 <Checkbox v-model="conditionADX1" :binary="true" /></div>
+                            <div>ADX2 <Checkbox v-model="conditionADX2" :binary="true" /></div>
+                            <div>MACD1 <Checkbox v-model="conditionMACD1" :binary="true" /></div>
+                            <div>MACD2 <Checkbox v-model="conditionMACD2" :binary="true" /></div>
+                        </div>
+                        <div class="flex">
+                            <div>ST <Checkbox v-model="conditionST" :binary="true" /></div>
+                            <div>RSI <Checkbox v-model="conditionRSI" :binary="true" /></div>
+                            <div>WT1 <Checkbox v-model="conditionWT1" :binary="true" /></div>
+                            <div>WT2 <Checkbox v-model="conditionWT2" :binary="true" /></div>
+                        </div>
                     </div>
                     <div v-if="conditionADX1" class="card flex p-2">
                         <div>ADX1</div>
@@ -427,11 +431,12 @@ function runVisual() {
 
         /// 3. MACD1 조건
         if (conditionMACD1.value) {
-            // MACD 조건 체크 (해당 조건이 활성화된 경우에만 비교)
-            const macdConditionMet = (!macdOver.value || item.macd >= macdOver.value) && (!macdUnder.value || item.macd <= macdUnder.value);
+            // MACD 조건 체크
+            const macdConditionMet = (macdOver.value !== null && macdOver.value !== undefined ? item.macd >= macdOver.value : true) && (macdUnder.value !== null && macdUnder.value !== undefined ? item.macd <= macdUnder.value : true);
 
-            // Signal 조건 체크 (해당 조건이 활성화된 경우에만 비교)
-            const signalConditionMet = (!signalOver.value || item.macdSignal >= signalOver.value) && (!signalUnder.value || item.macdSignal <= signalUnder.value);
+            // Signal 조건 체크
+            const signalConditionMet =
+                (signalOver.value !== null && signalOver.value !== undefined ? item.macdSignal >= signalOver.value : true) && (signalUnder.value !== null && signalUnder.value !== undefined ? item.macdSignal <= signalUnder.value : true);
 
             // 모든 활성화된 조건이 만족되면 마커 추가
             if (macdConditionMet && signalConditionMet) {
