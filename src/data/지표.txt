@@ -1,2 +1,0 @@
-adx1 : mdi adx pdi / wt2 : w1 -50이하 wt2 -50이하
-adx1 : mdi adx pdi / adx2 : mdi 35이하 / st : short / wt1 : short /

@@ -170,132 +170,6 @@
                 </ScrollPanel>
             </SplitterPanel>
         </Splitter>
-        <!-- <div class="flex">
-            <div style="width: 72%" class="chart-container">
-                <div ref="candleChartContainer" style="width: 100%; height: 350px; margin-bottom: 20px" class="firstchart">Candle Chart</div>
-                <div ref="volumeChartContainer" style="width: 100%; height: 100px; margin-bottom: 20px" :class="{ 'top-chart': topChart === 'volume' }">Volume Chart</div>
-                <div ref="adxChartContainer" style="width: 100%; height: 200px; margin-bottom: 20px" :class="{ 'top-chart': topChart === 'adx' }">ADX Chart</div>
-                <div ref="supertrendChartContainer" style="width: 100%; height: 200px; margin-bottom: 20px" :class="{ 'top-chart': topChart === 'supertrend' }">Supertrend Chart</div>
-                <div ref="wavetrendChartContainer" style="width: 100%; height: 200px; margin-bottom: 20px" :class="{ 'top-chart': topChart === 'wavetrend' }">WaveTrend Chart</div>
-                <div ref="rsiChartContainer" style="width: 100%; height: 200px; margin-bottom: 20px" :class="{ 'top-chart': topChart === 'rsi' }">RSI Chart</div>
-                <div ref="macdChartContainer" style="width: 100%; height: 200px; margin-bottom: 20px" :class="{ 'top-chart': topChart === 'macd' }">MACD Chart</div>
-            </div>
-            <div style="width: 8%">
-                <div class="button-group">
-                    <Button @click="moveChartToTop('volume')" class="mb-2">Volume Chart</Button>
-                    <Button @click="moveChartToTop('adx')" class="mb-2">ADX Chart</Button>
-                    <Button @click="moveChartToTop('supertrend')" class="mb-2">Supertrend Chart</Button>
-                    <Button @click="moveChartToTop('wavetrend')" class="mb-2">WaveTrend Chart</Button>
-                    <Button @click="moveChartToTop('rsi')" class="mb-2">RSI Chart</Button>
-                    <Button @click="moveChartToTop('macd')" class="mb-2">MACD Chart</Button>
-                </div>
-            </div>
-
-            <div style="width: 20%">
-                <Button @click="runVisual()">적용</Button>
-                <Button @click="deletevalue()">초기화</Button>
-                <div class="card flex gap-3 p-2">
-                    <div>ADX1 <Checkbox v-model="conditionADX1" :binary="true" /></div>
-                    <div>ADX2 <Checkbox v-model="conditionADX2" :binary="true" /></div>
-                    <div>MACD1 <Checkbox v-model="conditionMACD1" :binary="true" /></div>
-                    <div>MACD2 <Checkbox v-model="conditionMACD2" :binary="true" /></div>
-                    <div>ST <Checkbox v-model="conditionST" :binary="true" /></div>
-                    <div>RSI <Checkbox v-model="conditionRSI" :binary="true" /></div>
-                    <div>WT <Checkbox v-model="conditionWT" :binary="true" /></div>
-                </div>
-
-                <div class="card flex p-2">
-                    <div>ADX1</div>
-                    <OrderList v-model="adxindicatorsafter" :dragdrop="true" header="Indicator Order" v-show="conditionADX1">
-                        <template #header>바뀐자료</template>
-                        <template #item="slotProps">
-                            <div class="p-d-flex p-ai-center p-jc-between" style="width: 100%">
-                                <div :style="{ color: getColor(slotProps.item.name) }">{{ slotProps.index + 1 }}. {{ slotProps.item.name }}</div>
-                            </div>
-                        </template>
-                    </OrderList>
-                    <div class="ml-4" v-show="conditionADX1">
-                        <div>전체자료</div>
-                        <Checkbox v-model="adxindicatorsAll" :binary="true" />
-                    </div>
-                </div>
-
-                <div class="card flex-row p-2">
-                    <div>ADX2</div>
-                    <div style="color: red">ADX <InputNumber v-model="adxOver" :disabled="!conditionADX2" />이상일때</div>
-                    <div style="color: red">ADX <InputNumber v-model="adxUnder" :disabled="!conditionADX2" />이하일때</div>
-                    <div style="color: blue">PDI <InputNumber v-model="pdiOver" :disabled="!conditionADX2" />이상일때</div>
-                    <div style="color: blue">PDI <InputNumber v-model="pdiUnder" :disabled="!conditionADX2" />이하일때</div>
-                    <div style="color: orange">MDI <InputNumber v-model="mdiOver" :disabled="!conditionADX2" />이상일때</div>
-                    <div style="color: orange">MDI <InputNumber v-model="mdiUnder" :disabled="!conditionADX2" />이하일때</div>
-                </div>
-                <div class="card flex p-2">
-                    <div>
-                        <div>ST</div>
-                        <div class="flex align-content-center mb-2">
-                            <div class="mr-2">SuperTrend Long</div>
-                            <Checkbox v-model="supertrendLong" :binary="true" :disabled="!conditionST"></Checkbox>
-                        </div>
-                        <div class="flex align-content-center">
-                            <div class="mr-2">SuperTrend Short</div>
-                            <Checkbox v-model="supertrendShort" :binary="true" :disabled="!conditionST"></Checkbox>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <div>전체자료</div>
-                        <Checkbox v-model="supertrendAll" :binary="true" :disabled="!conditionST" />
-                    </div>
-                </div>
-                <div class="card flex p-2">
-                    <div>
-                        <div>WT</div>
-                        <div class="flex align-content-center mb-2">
-                            <div class="mr-2">WaveTrend Long</div>
-                            <Checkbox v-model="wavetrendLong" :binary="true" :disabled="!conditionWT"></Checkbox>
-                        </div>
-                        <div class="flex align-content-center">
-                            <div class="mr-2">WaveTrend Short</div>
-                            <Checkbox v-model="wavetrendShort" :binary="true" :disabled="!conditionWT"></Checkbox>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <div>전체자료</div>
-                        <Checkbox v-model="wavetrendAll" :binary="true" :disabled="!conditionWT" />
-                    </div>
-                </div>
-                <div class="card flex-row p-2">
-                    <div>RSI</div>
-                    <div><InputNumber v-model="rsiOver" :disabled="!conditionRSI" /> 이상일때</div>
-                    <div><InputNumber v-model="rsiUnder" :disabled="!conditionRSI" /> 이하일때</div>
-                </div>
-                <div class="card flex-row p-2">
-                    <div>MACD1</div>
-                    <div style="color: blue">MACD<InputNumber v-model="macdOver" :disabled="!conditionMACD1" />이상일때</div>
-                    <div style="color: blue">MACD<InputNumber v-model="macdUnder" :disabled="!conditionMACD1" />이하일때</div>
-                    <div style="color: red">Signal<InputNumber v-model="signalOver" :disabled="!conditionMACD1" />이상일때</div>
-                    <div style="color: red">Signal<InputNumber v-model="signalUnder" :disabled="!conditionMACD1" />이하일때</div>
-                </div>
-                <div class="card flex p-2">
-                    <div>
-                        <div>MACD2</div>
-                        <div class="mt-2">
-                            <div class="flex align-content-center mb-2">
-                                <div style="color: blue" class="mr-2">MACD가Signal보다 클때</div>
-                                <div><Checkbox v-model="macdMore" :binary="true" :disabled="!conditionMACD2"></Checkbox></div>
-                            </div>
-                            <div class="flex align-content-center mb-2">
-                                <div style="color: red" class="mr-2">Signal가MACD보다 클때</div>
-                                <div><Checkbox v-model="signalMore" :binary="true" :disabled="!conditionMACD2"></Checkbox></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <div>전체자료</div>
-                        <Checkbox v-model="macdAll" :binary="true" :disabled="!conditionMACD2" />
-                    </div>
-                </div>
-            </div>
-        </div> -->
     </div>
 </template>
 
@@ -514,16 +388,35 @@ function runVisual() {
 
         // 6. ADX2 조건
         if (conditionADX2.value) {
-            // ADX 조건 체크 (해당 조건이 활성화된 경우에만 비교)
-            const adxConditionMet = (!adxOver.value || item.adx >= adxOver.value) && (!adxUnder.value || item.adx <= adxUnder.value);
+            let adxConditionMet = true;
+            let pdiConditionMet = true;
+            let mdiConditionMet = true;
 
-            // PDI 조건 체크 (해당 조건이 활성화된 경우에만 비교)
-            const pdiConditionMet = (!pdiOver.value || item.pdi >= pdiOver.value) && (!pdiUnder.value || item.pdi <= pdiUnder.value);
+            // ADX 조건 체크
+            if (adxOver.value !== null && adxOver.value !== undefined) {
+                adxConditionMet = item.adx >= adxOver.value;
+            }
+            if (adxUnder.value !== null && adxUnder.value !== undefined) {
+                adxConditionMet = adxConditionMet && item.adx <= adxUnder.value;
+            }
 
-            // MDI 조건 체크 (해당 조건이 활성화된 경우에만 비교)
-            const mdiConditionMet = (!mdiOver.value || item.mdi >= mdiOver.value) && (!mdiUnder.value || item.mdi <= mdiUnder.value);
+            // PDI 조건 체크
+            if (pdiOver.value !== null && pdiOver.value !== undefined) {
+                pdiConditionMet = item.pdi >= pdiOver.value;
+            }
+            if (pdiUnder.value !== null && pdiUnder.value !== undefined) {
+                pdiConditionMet = pdiConditionMet && item.pdi <= pdiUnder.value;
+            }
 
-            // 모든 활성화된 조건이 만족되면 마커 추가
+            // MDI 조건 체크
+            if (mdiOver.value !== null && mdiOver.value !== undefined) {
+                mdiConditionMet = item.mdi >= mdiOver.value;
+            }
+            if (mdiUnder.value !== null && mdiUnder.value !== undefined) {
+                mdiConditionMet = mdiConditionMet && item.mdi <= mdiUnder.value;
+            }
+
+            // 모든 조건이 만족될 때만 추가
             if (adxConditionMet && pdiConditionMet && mdiConditionMet) {
                 adx2Markers.push(i);
             }
@@ -534,11 +427,16 @@ function runVisual() {
     });
 
     const activeMarkers = [stMarkers, wt1Makers, wt2Makers, rsiMarkers, macd1Markers, macd2Markers, adx1Markers, adx2Markers];
-    const activeConditions = [conditionST.value, conditionRSI.value, conditionMACD1.value, conditionMACD2.value, conditionADX1.value, conditionADX2.value];
+    const activeConditions = [conditionST.value, conditionWT1.value, conditionWT2.value, conditionRSI.value, conditionMACD1.value, conditionMACD2.value, conditionADX1.value, conditionADX2.value];
+    console.log('Active Markers:', activeMarkers);
+    console.log('Active Conditions:', activeConditions);
+    // 활성화된 조건에 따른 마커 필터링
+    const activeMarkersFiltered = activeMarkers.filter((_, index) => activeConditions[index]);
 
-    const calculateFinalMarkers = (activeMarkers) => {
+    // 최종 마커 계산 함수
+    const calculateFinalMarkers = (filteredMarkers) => {
         // 빈 배열이 아닌 마커 리스트만 필터링
-        const nonEmptyMarkers = activeMarkers.filter((markers) => markers.length > 0);
+        const nonEmptyMarkers = filteredMarkers.filter((markers) => markers.length > 0);
 
         if (nonEmptyMarkers.length === 0) {
             // 모든 조건이 비어 있는 경우 빈 배열 반환
@@ -550,23 +448,27 @@ function runVisual() {
             return nonEmptyMarkers[0];
         }
 
-        // 두 개 이상의 조건이 활성화된 경우 교집합 계산
+        // 두 개 이상의 조건이 활성화된 경우
+        // 빈 배열이 하나라도 포함되면 빈 배열 반환
+        if (nonEmptyMarkers.some((markers) => markers.length === 0)) {
+            return [];
+        }
+
+        // 교집합 계산
         return nonEmptyMarkers.reduce((acc, markers) => {
             return acc.filter((index) => markers.includes(index));
         });
     };
-    //
 
     // 최종 마커 계산
-    const filteredMarkers = calculateFinalMarkers(activeMarkers);
-
+    const filteredMarkers = calculateFinalMarkers(activeMarkersFiltered);
+    console.log('Filtered Markers:', filteredMarkers);
     // 최종 마커 설정
     const markers = filteredMarkers.map((i) => ({
         time: data.value[i].time,
         position: 'aboveBar',
         color: 'blue',
         shape: 'arrowDown'
-        //text: '조건 만족'
     }));
 
     // console.log('stMarkers:', stMarkers);
@@ -574,8 +476,8 @@ function runVisual() {
     // console.log('rsiMarkers:', rsiMarkers);
     // console.log('macd1Markers:', macd1Markers);
     // console.log('macd2Markers:', macd2Markers);
-    // console.log('adx1Markers:', adx1Markers);
-    // console.log('adx2Markers:', adx2Markers);
+    console.log('adx1Markers:', adx1Markers);
+    console.log('adx2Markers:', adx2Markers);
 
     // console.log('Filtered Markers:', filteredMarkers);
     console.log('Final Markers:', markers);
@@ -787,6 +689,11 @@ const chartChoice = ref('');
 const initializeCharts = () => {
     if (candleChart) candleChart.remove();
     if (supertrendChart) supertrendChart.remove();
+    if (wavetrendChart) wavetrendChart.remove();
+    if (rsiChart) rsiChart.remove();
+    if (macdChart) macdChart.remove();
+    if (adxChart) adxChart.remove();
+    if (volumeChart) volumeChart.remove();
 
     // 첫 번째 차트 (캔들 차트) 생성
     candleChart = createChart(candleChartContainer.value, {
